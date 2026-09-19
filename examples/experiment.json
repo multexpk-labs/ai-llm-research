@@ -1,0 +1,12 @@
+{
+  "experiment": "structured-output-baseline",
+  "model": "example-model",
+  "runtime": "example-runtime",
+  "temperature": 0,
+  "input": "Return JSON with keys name and status.",
+  "expected_schema": {
+    "name": "string",
+    "status": "string"
+  },
+  "notes": "Synthetic fixture. Replace with measured results in a private or dedicated experiment record."
+}
