@@ -2,7 +2,7 @@
 
 A practical research laboratory for **AI, large language models, local inference, model evaluation, agents, automation, and AI-assisted software engineering**.
 
-This repository focuses on reproducible experiments and engineering understanding rather than hype or benchmark collecting without context.
+This repository records reproducible experiments across ordinary laptops, CPU VPS infrastructure, and agent-based automation.
 
 ## Research Philosophy
 
@@ -10,24 +10,95 @@ This repository focuses on reproducible experiments and engineering understandin
 
 Measured results, assumptions, and subjective observations should be clearly separated.
 
-## Research Areas
+## Research Environments
 
-- Open-weight and hosted LLMs
-- Local and remote inference
-- Ollama and model serving
-- GGUF and quantization
-- GPU/CPU inference and memory planning
-- Context windows and KV-cache behavior
-- Prompt engineering and regression testing
-- Structured output / JSON generation
-- Tool calling
-- AI agents
-- RAG and embeddings
-- LLM API gateways
-- Model evaluation
-- Latency, throughput and resource benchmarking
-- AI-assisted coding
-- Automation with LLMs
+MULTEXPK LABS intentionally tests AI workloads across different hardware constraints:
+
+| Environment | Runtime / UI | Hardware | Purpose |
+|---|---|---|---|
+| Local laptop | LM Studio | Basic Intel shared GPU + system RAM | Lightweight local model experiments |
+| Local/other host | Ollama | CPU/GPU dependent | Runtime and model comparison |
+| VPS | Ollama + Open WebUI | 10-core AMD, 36 GB RAM, CPU | Remote CPU inference |
+| Agent environment | OpenClaw + LLM runtime | Local/remote | Customer-question and automation research |
+
+The exact model, quantization, context length, runtime version, hardware and workload should be recorded for meaningful comparisons.
+
+## LM Studio on a Basic Laptop
+
+One research environment uses **LM Studio** on a normal laptop with a small shared Intel GPU configuration, approximately 1–4 GB of shared graphics memory depending on system allocation.
+
+The purpose is to test lightweight GGUF models rather than chase large-model performance.
+
+Initial model experiments include:
+
+- Phi-3 family models
+- Small Qwen models
+- Other compact models suitable for the available memory
+
+See [LM Studio Laptop Research](docs/lm-studio-laptop.md).
+
+Shared Intel graphics memory is not equivalent to dedicated VRAM. Actual acceleration depends on hardware, drivers, runtime, model format and offload configuration, so results must be measured.
+
+## Ollama + Open WebUI on VPS CPU
+
+Another environment runs **Ollama + Open WebUI** on a VPS with approximately:
+
+- 10-core AMD CPU
+- 36 GB RAM
+- CPU inference
+- Ollama model runtime
+- Open WebUI interface
+
+Architecture:
+
+`Browser → Open WebUI → Ollama → Model → CPU/RAM`
+
+This environment is useful for studying practical CPU inference, remote access architecture, model loading, context behavior and resource consumption without dedicated GPU hardware.
+
+See [Ollama + Open WebUI VPS Research](docs/ollama-openwebui-vps.md).
+
+## OpenClaw Customer-Agent Research
+
+A major research direction is using **OpenClaw** with local/remote LLM infrastructure to investigate an agent for handling customer questions received through WhatsApp.
+
+Conceptual flow:
+
+`WhatsApp → Gateway/CRM → OpenClaw → LLM → Knowledge/Tools → Response → WhatsApp`
+
+The WhatsApp gateway or CRM remains responsible for transport, authentication, message history and delivery events. OpenClaw acts as the agent/orchestration layer.
+
+Potential agent tasks include understanding questions, retrieving approved business knowledge, drafting responses, identifying human-support cases, maintaining useful context, and using bounded tools.
+
+See [OpenClaw Customer-Agent Research](docs/openclaw-customer-agent.md).
+
+## Markdown Memory / Agent Soul
+
+One research pattern is to use human-readable Markdown files for agent identity and memory.
+
+Example structure:
+
+```text
+agent/
+├── SOUL.md
+├── MEMORY.md
+├── USER.md
+├── TASKS.md
+└── memory/
+    ├── 2026-09-19.md
+    └── 2026-09-20.md
+```
+
+Typical roles:
+
+- `SOUL.md` — stable identity, behavior and boundaries
+- `MEMORY.md` — curated long-term knowledge
+- `USER.md` — approved user/customer context
+- `TASKS.md` — active work state
+- dated files — short-term observations/events
+
+Markdown is simple, inspectable, versionable and portable. Memory should be selective rather than automatically storing every conversation.
+
+See [Markdown Memory and Agent Identity](docs/md-memory-soul-agent.md).
 
 ## Model Evaluation
 
@@ -44,13 +115,11 @@ A useful evaluation considers the actual target task:
 - Failure rate
 - Cost per useful result
 
-Use a fixed, versioned evaluation set containing normal cases, edge cases, malformed input, long-context cases, and expected failure cases.
-
-See [Model Evaluation](docs/model-evaluation.md).
+Use fixed, versioned evaluation sets containing normal cases, edge cases, malformed input, long-context cases and expected failures.
 
 ## Inference & Quantization
 
-Practical memory planning can be approximated as:
+A practical planning approximation is:
 
 `Memory ≈ model weights + runtime overhead + KV cache + workspace`
 
@@ -58,9 +127,9 @@ Context length and concurrency can materially change memory requirements. Quanti
 
 See [Inference and Quantization](docs/inference-and-quantization.md).
 
-## Ollama and Local Models
+## Ollama
 
-Ollama is one of the practical runtimes used for local and remote model experiments.
+Useful operations include:
 
 ```bash
 ollama --version
@@ -71,11 +140,9 @@ ollama show MODEL
 ollama run MODEL
 ```
 
-Keep inference endpoints private or behind an appropriate authenticated gateway. Do not expose an unrestricted model server directly to the public Internet.
+Keep inference endpoints private or behind an authenticated gateway. Do not expose an unrestricted model server directly to the public Internet.
 
 See [Ollama and Local Models](docs/ollama-and-local-models.md).
-
-Related organization repositories: `ollama-lab` and `llm-infrastructure`.
 
 ## Agents and Tool Calling
 
@@ -83,33 +150,27 @@ A practical agent can be represented as:
 
 `User → Application → Agent → Model → Tool Router → External Service → Result`
 
-Important engineering controls include least-privilege tools, argument validation, read/write separation, human approval for sensitive operations, bounded retries, execution limits, action logging, and deterministic fallbacks.
+Use least-privilege tools, argument validation, read/write separation, approval for sensitive actions, bounded retries, execution limits and action logging.
 
-See [Agents and Tools](docs/agents-and-tools.md).
+When a task has deterministic steps, ordinary automation may be more reliable than an agent.
 
 ## Local vs Remote AI
 
-AI workloads may run locally, on a private GPU host, or behind an application API gateway.
-
 `Client → Authenticated API → LLM Runtime → Model`
 
-An application gateway can provide authentication, rate limiting, routing, logging, and usage controls without exposing the underlying inference service directly.
-
-See [Local and Remote Architecture](docs/local-remote-architecture.md).
+An application gateway can provide authentication, rate limiting, routing, logging and usage controls without exposing the inference service directly.
 
 ## Prompt Experiments
 
-Prompts are experimental inputs and should be versioned. Record model/runtime, prompt version, input fixture, expected output, actual output, evaluation criteria, and sampling parameters.
-
-See [Prompt Experiments](docs/prompt-experiments.md).
+Prompts should be versioned. Record model/runtime, prompt version, input fixture, expected output, actual output, evaluation criteria and sampling parameters.
 
 ## Benchmarking
 
-Benchmark records should include:
+Record:
 
 - Model and quantization
 - Runtime/version
-- CPU/GPU/RAM/VRAM class
+- CPU/GPU/RAM/VRAM
 - Context length
 - Concurrency
 - Sampling configuration
@@ -118,29 +179,28 @@ Benchmark records should include:
 - Peak memory
 - Error rate
 
-Do not compare numbers produced from materially different workloads as though they were equivalent.
-
-See `examples/benchmark-record.md`.
+Do not compare results from materially different workloads as though they were equivalent.
 
 ## Practical Utilities
 
-- `bash/llm-host-check.sh` — inspect an inference host
-- `python/llm_experiment.py` — create a reproducible experiment record
-- `examples/experiment.json` — synthetic structured-output fixture
+- `bash/llm-host-check.sh` — inference-host inspection
+- `python/llm_experiment.py` — experiment record generator
 - `examples/benchmark-record.md` — benchmark template
+- `examples/memory-layout.md` — synthetic Markdown memory layout
+- `examples/customer-agent-flow.md` — synthetic OpenClaw/WhatsApp flow
 - `tests/README.md` — testing strategy
-
-## Research Topics
-
-See [Research Topics](docs/research-topics.md) for a continuing list of experiments around models, inference, agents, retrieval, tool calling, evaluation, and AI-assisted engineering.
 
 ## Testing
 
-Public CI should rely on deterministic unit tests, synthetic fixtures, mocks, and locally available models where practical. Expensive model evaluations should be separated from ordinary regression tests.
+Public CI should use deterministic tests, synthetic fixtures and mocks. Expensive model evaluations should be separated from ordinary regression tests.
 
-Useful coverage includes response parsing, structured output validation, tool arguments, agent state transitions, provider errors, timeout/retry behavior, authentication, and benchmark fixture consistency.
+For customer-agent research, test routing, memory selection, tool permissions, response validation, human handoff, duplicate messages, retries and provider failures without using real customer data.
 
-See [Testing Strategy](tests/README.md).
+## Security and Responsible Research
+
+Never commit API keys, access tokens, private endpoints, customer conversations, private datasets, production logs, WhatsApp session files or infrastructure credentials.
+
+Agent memory must be treated as data. Store only information necessary for the task, and apply appropriate access controls and retention rules.
 
 ## Research and Reimplementation
 
@@ -148,13 +208,7 @@ MULTEXPK LABS uses:
 
 **Find → Clone → Inspect → Understand → Document → Reimplement → Test → Improve**
 
-When studying public models, runtimes, APIs, or projects, check licensing and applicable terms. The goal is understanding and original engineering, not copying proprietary source.
-
-## Security and Responsible Research
-
-Never commit API keys, access tokens, private endpoints, customer prompts, private datasets, production logs, or infrastructure credentials.
-
-For agent experiments, isolate tools and permissions. Destructive or irreversible actions should require explicit controls or human approval.
+Check licenses and applicable model/provider terms. The goal is understanding and original engineering, not copying proprietary source.
 
 ## Related MULTEXPK LABS Repositories
 
@@ -162,9 +216,9 @@ For agent experiments, isolate tools and permissions. Destructive or irreversibl
 - `ollama-lab`
 - `ai-agents-automation`
 - `coding-agent-lab`
-- `ats-environment`
+- `ATS-environment`
+- `whatsapp-automation`
 - `engineering-notes`
-- `linux-vps-engine`
 - `cloud-infrastructure`
 
 ---
